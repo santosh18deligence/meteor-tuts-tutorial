@@ -1,0 +1,22 @@
+{
+  "name": "meteor-tuts",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.54",
+    "bcrypt": "^1.0.3",
+    "history": "^4.7.2",
+    "meteor-node-stubs": "^0.3.2",
+    "moment": "^2.20.1",
+    "prop-types": "^15.6.1",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "simpl-schema": "^1.5.0",
+    "uniforms": "^1.24.5",
+    "uniforms-unstyled": "^1.24.5"
+  }
+}
