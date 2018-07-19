@@ -1,5 +1,5 @@
 import {Meteor} from 'meteor/meteor'
-import {Posts} from '/db';
+import {Posts,Comments} from '/db';
 
 Meteor.methods({
     'post.create'(post) {
@@ -9,8 +9,7 @@ Meteor.methods({
     },
 
     'post.list' () {
-        //This is used for fetching posts based on userId from database
-        return Posts.find({"userId":this.userId}).fetch();
+        return Posts.find().fetch();
     },
 
     'post.edit' (_id, post) {
@@ -37,6 +36,7 @@ Meteor.methods({
     },
 
     'post.remove' (_id){
+        Comments.remove({'postId':_id});
         Posts.remove(_id);
     },
 
