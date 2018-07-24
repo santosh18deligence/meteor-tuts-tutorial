@@ -1,6 +1,6 @@
-import Posts from './posts/collection';
+import Posts from './posts/link';
 import Users from './users/collection';
-import Comments from './comments/collection';
+import Comments from './comments/link';
 export {
     Posts,
     Users,

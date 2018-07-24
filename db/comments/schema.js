@@ -5,11 +5,6 @@ export default new SimplSchema({
     text:{
         type : String,
         label : "Comment "
-
-    },
-    postId:{
-        type: String,
-        optional: false
     },
     userId: {
         type: String,
@@ -18,6 +13,19 @@ export default new SimplSchema({
         	return this.userId
         },
     },
+     createdAt: {
+        type: Date,
+        optional: true,
+        autoValue: function() {
+          if (this.isInsert) {
+            return new Date();
+          } else if (this.isUpsert) {
+            return {$setOnInsert: new Date()};
+          } else {
+            this.unset();
+          }
+        },
+    }
 
 });
 

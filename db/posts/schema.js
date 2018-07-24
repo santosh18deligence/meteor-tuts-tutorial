@@ -29,6 +29,14 @@ export default new SimplSchema({
         allowedValues: ["Nature","Psychology","Music","Programming","Project Management","Other"],
         defaultValue: 'Nature',
     },
+    commentIds: {
+       type: Array, 
+       optional: true,
+       defaultValue: []
+    },
+    'commentIds.$': {
+        type: String
+    },
     createdAt: {
         type: Date,
         optional: true,

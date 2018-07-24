@@ -1,6 +1,6 @@
 import React from 'react';
-import {withTracker} from 'meteor/react-meteor-data';
-import {Comments,Posts} from '/db';
+import postListQuery from '/imports/api/posts/postList.js';
+import { withQuery } from 'meteor/cultofcoders:grapher-react';
 
 
 class PostList extends React.Component {
@@ -8,14 +8,27 @@ class PostList extends React.Component {
         super();
     }
 
+    //To edit a post
+
+    editPost = (_id,userId) =>{
+        const {history} = this.props;
+        if(Meteor.userId() === userId){
+            return <button onClick={() => {
+                        history.push("/posts/edit/" + _id)
+                    }}> Edit post
+                    </button>
+
+        }
+    }                                
+
     //To delete a post
 
-    deletePost = (_id,userId) =>{
+    deletePost = (_id,commentIds,userId) =>{
 
         if(Meteor.userId() === userId){
             return <button onClick={() => {
                             if(confirm("Are you sure to delete this post?")){
-                                Meteor.call('post.remove',_id, (err) => {
+                                Meteor.call('post.remove',_id, commentIds, (err) => {
                                     if (err) {
                                         return alert(err.reason);
                                     }
@@ -28,22 +41,15 @@ class PostList extends React.Component {
         }
     }
 
-    //Find no. of comments of a post
-    findNoOfComment = (postId)=>{
-
-        let no_of_comment=0;
-        no_of_comment = Comments.find({'postId':postId}).count();
-        return no_of_comment;
-
-    }
-   
+      
 
     render() {
-        const posts = this.props.posts;
+        const posts = this.props.data;
+        const isLoading = this.props.isLoading;
         const {history} = this.props;
         const border={border: '1px solid gray',margin:'10px 0 5px 0',width: '500px'};
 
-        if (!posts) {
+        if (isLoading) {
             return <div>Loading....</div>
         }
 
@@ -54,22 +60,16 @@ class PostList extends React.Component {
                         let viewLink ="/posts/view/"+post._id;
                         return (
                             <div key={post._id}>
-                                
-                               
                                     <p>Post Id: {post._id} </p>
                                     <p>Post Type: {post.type}</p> 
                                     <p>Post Title:  {post.title}</p>
                                     <p>Post Description: {post.description}</p>
                                     <p>Post Views: {post.views} </p>
-                                    <p>No. of comments : {this.findNoOfComment(post._id)} </p>
+                                    <p>No. of comments : {post.commentIds.length} </p>
                                 
-                              
-                                <button onClick={() => {
-                                    history.push("/posts/edit/" + post._id)
-                                }}> Edit post
-                                </button>
+                                {this.editPost(post._id,post.userId)}
                                 &nbsp;&nbsp;
-                                {this.deletePost(post._id, post.userId)}
+                                {this.deletePost(post._id,post.commentIds, post.userId)}
 
                                 <span>&nbsp;&nbsp;&nbsp;</span>
                                 <a href={viewLink}> View post </a>
@@ -83,11 +83,9 @@ class PostList extends React.Component {
         )
     }
 }
-export default withTracker(props => {
-    const handle = Meteor.subscribe('comments');
-    const handle2 = Meteor.subscribe('posts');
-    return {
-        loading: !handle.ready(),
-        posts:Posts.find({},{sort:{createdAt: -1}}).fetch()
-    };
-})(PostList);
+export default withQuery(props => {
+// I have implemented the grapher
+   return postListQuery.clone();
+
+},
+{ reactive: true })(PostList);

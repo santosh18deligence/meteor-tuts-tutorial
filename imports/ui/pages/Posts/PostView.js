@@ -3,13 +3,15 @@ import ReactDOM from 'react-dom';
 import {AutoForm, AutoField, LongTextField,ErrorField,HiddenField} from 'uniforms-unstyled';
 import CommentSchema from '/db/comments/schema';
 import CommentList from '../Comments/CommentList';
+import postCommentListQuery from '/imports/api/comments/commentList.js';
+import { withQuery } from 'meteor/cultofcoders:grapher-react';
 
-
-export default class PostView extends React.Component {
+class PostView extends React.Component {
     constructor() {
         super();
-        this.state = {post: null,commentText:''};
     }
+
+    // To increment view of post
 
     componentWillMount(){
         Meteor.call('post.increment.view', this.props.match.params._id, (err) => {
@@ -19,16 +21,10 @@ export default class PostView extends React.Component {
         });
     }
 
-    componentDidMount() {
-
-        Meteor.call('post.get', this.props.match.params._id, (err, post) => {
-            this.setState({post});
-        });
-        
-    }
+    // To create comment of post
 
      submit = (comment) => {
-        Meteor.call('comment.create', comment, (err) => {
+        Meteor.call('comment.create', this.props.match.params._id, comment, (err) => {
             if (err) {
                 return alert(err.reason);
             }
@@ -52,14 +48,15 @@ export default class PostView extends React.Component {
                             <div>&nbsp;</div>
                             <ErrorField style={errorMsg}  name="text" />
                             <div>&nbsp;</div>
-                            <HiddenField name="postId" value={this.props.match.params._id} />
-                            <button type="submit"  >Add comment</button>
+                            <button type="submit" >Add comment</button>
                             <button onClick={() => history.push('/posts')}>Back to posts</button>
                         </AutoForm></div>);
       }
       return htmlText;
 
     }
+
+    //For showing backtopost button
 
     backToPost=()=>{
       let htmlText=[];
@@ -73,11 +70,15 @@ export default class PostView extends React.Component {
     
 
     render() {
-        const {post} = this.state;
+        let post = [];
+        if(this.props.data && this.props.data[0]){
+           post = this.props.data[0];
+        }
+        const isLoading = this.props.isLoading;
+
         const {history} = this.props;
         
-
-        if (!post) {
+        if (isLoading) {
             return <div>Loading....</div>
         } else {
             return (
@@ -94,8 +95,9 @@ export default class PostView extends React.Component {
 
                         <p>Post Views: {post.views} </p>
 
+                        <p>No. of comments : {post.commentIds.length} </p>
+
                         {this.backToPost()}
-                      
                         
                     </div>
                     <div>
@@ -103,7 +105,7 @@ export default class PostView extends React.Component {
                     </div>
 
                     <div>
-                        <CommentList postId={this.props.match.params._id} />
+                        <CommentList  comments ={post} />
                     </div>
 
                 </div>
@@ -111,3 +113,12 @@ export default class PostView extends React.Component {
         }
     }
 }
+export default withQuery(props => {
+    // I have implemented the grapher
+
+    return postCommentListQuery.clone({
+            _id: props.match.params._id
+        });
+
+},
+{ reactive: true })(PostView);

@@ -3,14 +3,18 @@ import {Posts,Comments} from '/db';
 
 Meteor.methods({
     'post.create'(post) {
-        //This is used for stroring userId in database
-        post.userId = this.userId
-        Posts.insert(post);
+        // Implemented create query of posts using grapher
+        let postId = Posts.insert(post);
+        if(postId){
+            const userPostLink = Meteor.users.getLink(this.userId, 'posts');
+            userPostLink.set(postId);
+            const postUserLink = Posts.getLink(postId, 'user');
+            postUserLink.set(this.userId); 
+        }
+
     },
 
-    'post.list' () {
-        return Posts.find().fetch();
-    },
+    'post.list' () {},
 
     'post.edit' (_id, post) {
         Posts.update(_id, {
@@ -35,12 +39,31 @@ Meteor.methods({
         }
     },
 
-    'post.remove' (_id){
-        Comments.remove({'postId':_id});
-        Posts.remove(_id);
+    'post.remove' (_id, commentIds){
+        // Implemented delete query of posts using grapher
+        
+        if(Comments.remove({'_id':{$in:commentIds}})){
+            Posts.remove(_id);
+        }
+
     },
 
     'post.get' (_id) {
-        return Posts.findOne(_id);
+         // Implemented get query of posts using grapher
+        let post = Posts.createQuery({
+            $filters: {
+                _id: _id,
+            },
+            title:1,
+            description:1,
+            views:1,
+            type:1,
+            userId:1,
+            commentIds:1,
+            user:{
+                   emails: 1
+                }
+        });
+        return post.fetchOne();
     }
 });
