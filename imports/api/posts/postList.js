@@ -1,6 +1,6 @@
-import {Meteor} from "meteor/meteor";
 import {Posts} from '/db';
- // Implemented fetch query of posts using grapher
+
+// Implemented fetch query of posts using grapher
 export default Posts.createQuery('postList', {
     $options: {
         sort: {createdAt: -1}
@@ -12,7 +12,7 @@ export default Posts.createQuery('postList', {
     userId:1,
     commentIds:1,
     user:{
-           emails: 1
-        },
+        emails: 1
+    },
     createdAt: 1,
 })

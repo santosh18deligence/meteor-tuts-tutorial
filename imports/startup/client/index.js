@@ -1,1 +1,1 @@
-import '/imports/ui/init';
+import '/imports/ui/init.jsx';

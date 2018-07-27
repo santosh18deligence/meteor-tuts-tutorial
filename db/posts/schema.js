@@ -1,4 +1,6 @@
+import _ from 'underscore';
 import SimplSchema from 'simpl-schema';
+import PostTypesEnum from './enums/types.js';
 
 export default new SimplSchema({
 
@@ -26,13 +28,13 @@ export default new SimplSchema({
         label: "Select Type ",
         type: String,
         optional:false,
-        allowedValues: ["Nature","Psychology","Music","Programming","Project Management","Other"],
+        allowedValues: _.values(PostTypesEnum),
         defaultValue: 'Nature',
     },
     commentIds: {
-       type: Array, 
-       optional: true,
-       defaultValue: []
+        type: Array,
+        optional: true,
+        defaultValue: []
     },
     'commentIds.$': {
         type: String
@@ -41,13 +43,13 @@ export default new SimplSchema({
         type: Date,
         optional: true,
         autoValue: function() {
-          if (this.isInsert) {
-            return new Date();
-          } else if (this.isUpsert) {
-            return {$setOnInsert: new Date()};
-          } else {
-            this.unset();
-          }
+            if (this.isInsert) {
+                return new Date();
+            } else if (this.isUpsert) {
+                return {$setOnInsert: new Date()};
+            } else {
+                this.unset();
+            }
         },
     }
 

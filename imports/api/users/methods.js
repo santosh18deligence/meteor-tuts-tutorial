@@ -1,5 +1,5 @@
 import {Meteor} from 'meteor/meteor'
-import {Users} from '/db';
+import {Users,Accounts} from '/db';
 
 Meteor.methods({
     'user.register' (data) {

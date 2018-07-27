@@ -1,42 +1,49 @@
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import {AutoForm, AutoField, LongTextField,ErrorField} from 'uniforms-unstyled';
 import PostSchema from '/db/posts/schema';
+import postCommentListQuery from '/imports/api/comments/commentList.js';
+import { withQuery } from 'meteor/cultofcoders:grapher-react';
+import PropTypes from 'prop-types';
 
-export default class PostEdit extends React.Component {
+class PostEdit extends React.Component {
     constructor() {
         super();
-        this.state = {post: null};
+        this.clickEditHandler = this.clickEditHandler.bind(this);
+        this.submitHandler = this.submitHandler.bind(this);
     }
 
-    componentDidMount() {
-        Meteor.call('post.get', this.props.match.params._id, (err, post) => {
-            this.setState({post});
-        });
-    }
-
-    submit = (post) => {
-        Meteor.call('post.edit', this.props.match.params._id, post, (err) => {
+    submitHandler(post){
+        Meteor.call('post.edit', this.props.match.params._id, post, function(err){
             if (err) {
                 return alert(err.reason);
             }
             alert('Post modified!')
         });
-    };
+    }
+
+    clickEditHandler(){
+        const {history} = this.props;
+        history.push('/posts')
+    }
 
     render() {
-        const {history} = this.props;
-        const {post} = this.state;
+        let post = [];
+        if(this.props.data && this.props.data[0]){
+            post = this.props.data[0];
+        }
+        const isLoading = this.props.isLoading;
         //To show error message in red color
         const errorMsg={color:'red'};
 
 
-        if (!post) {
+        if (isLoading) {
             return <div>Loading....</div>
         }
 
         return (
             <div className="post">
-                <AutoForm onSubmit={this.submit} schema={PostSchema} model={post}>
+                <AutoForm onSubmit={this.submitHandler} schema={PostSchema} model={post}>
                     <AutoField name="type"  />
                     <div>&nbsp;</div>
 
@@ -53,9 +60,23 @@ export default class PostEdit extends React.Component {
                     <div>&nbsp;</div>
 
                     <button type='submit'>Edit post</button>
-                    <button onClick={() => history.push('/posts')}>Back to posts</button>
+                    <button onClick={this.clickEditHandler}>Back to posts</button>
                 </AutoForm>
             </div>
         )
     }
 }
+PostEdit.propTypes = {
+    history: PropTypes.object,
+    match: PropTypes.object,
+    data:PropTypes.array,
+    isLoading: PropTypes.bool,
+}
+export default withQuery(props => {
+    // I have implemented the grapher
+
+    return postCommentListQuery.clone({
+        _id: props.match.params._id
+    });
+},
+{ reactive: true })(PostEdit);

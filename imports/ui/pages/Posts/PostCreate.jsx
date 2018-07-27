@@ -1,3 +1,5 @@
+import { Meteor } from 'meteor/meteor';
+import PropTypes from 'prop-types';
 import React from 'react';
 import {AutoForm, AutoField, LongTextField,ErrorField} from 'uniforms-unstyled';
 import PostSchema from '/db/posts/schema';
@@ -5,24 +7,27 @@ import PostSchema from '/db/posts/schema';
 export default class PostCreate extends React.Component {
     constructor() {
         super();
+        this.clickHandler = this.clickHandler.bind(this);
         
 
     }
 
-    submit = (post) => {
+    submit(post){
         Meteor.call('post.create', post, (err) => {
             if (err) {
                 return alert(err.reason);
             }
             alert('Post added!')
         });
-    };
+    }
 
-
+    clickHandler(){
+        const {history} = this.props;
+        history.push('/posts')
+    }
     
 
     render() {
-        const {history} = this.props;
         //To show error message in red color
 
         const errorMsg={color:'red'};
@@ -48,11 +53,14 @@ export default class PostCreate extends React.Component {
                     <ErrorField style={errorMsg}  name="description" />
                     <div>&nbsp;</div>
 
-                    <button type='submit'  >Add post</button>
+                    <button type='submit'>Add post</button>
 
-                    <button onClick={() => history.push('/posts')}>Back to posts</button>
+                    <button onClick={this.clickHandler}>Back to posts</button>
                 </AutoForm>
             </div>
         )
     }
 }
+PostCreate.propTypes = {
+    history: PropTypes.object,
+};

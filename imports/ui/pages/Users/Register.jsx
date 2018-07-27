@@ -1,13 +1,16 @@
+import { Meteor } from 'meteor/meteor';
 import React, {Component} from 'react';
 import {AutoForm, AutoField, ErrorsField} from 'uniforms-unstyled';
 import SimpleSchema from 'simpl-schema';
+import PropTypes from 'prop-types';
 
 export default class Register extends Component {
     constructor() {
         super();
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
-    onSubmit = (data) => {
+    onSubmit(data){
         Meteor.call('user.register', data, (err) => {
             if (!err) {
                 Meteor.loginWithPassword(data.email, data.password, (err) => {
@@ -20,24 +23,26 @@ export default class Register extends Component {
                 return alert(err.reason)
             }
         });
-    };
+    }
 
 
     render() {
         return (
             <div className="authentication">
                 <AutoForm schema={RegisterSchema} onSubmit={this.onSubmit}>
-                    <ErrorsField/>
-                    <AutoField name="email" placeholder="Email"/>
-                    <AutoField name="password" type="password" placeholder="Password *"/>
-                    <AutoField name="confirm_password" type="password" placeholder="Confirm password"/>
+                    <ErrorsField />
+                    <AutoField name="email" placeholder="Email" />
+                    <AutoField name="password" type="password" placeholder="Password *" />
+                    <AutoField name="confirm_password" type="password" placeholder="Confirm password" />
                     <button type="submit">Create account</button>
                 </AutoForm>
             </div>
         )
     }
 }
-
+Register.propTypes = {
+    history: PropTypes.object,
+}
 const RegisterSchema = new SimpleSchema({
     email: {
         type: String,

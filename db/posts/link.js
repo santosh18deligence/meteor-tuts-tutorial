@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import Posts from './collection';
 import Comments from '../comments/collection';
 

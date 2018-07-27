@@ -1,6 +1,8 @@
+import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { AutoForm, AutoField } from 'uniforms-unstyled';
 import SimpleSchema from 'simpl-schema';
+import PropTypes from 'prop-types';
 
 export default class Home extends React.Component {
     constructor() {
@@ -8,15 +10,18 @@ export default class Home extends React.Component {
         this.state = {
             number: -1
         }
+        this.getRandomNumber = this.getRandomNumber.bind(this);
+        this.submit = this.submit.bind(this);
+        this.loginHandle = this.loginHandle.bind(this);
     }
-    getRandomNumber = () =>  {
+    getRandomNumber(){
         Meteor.call('find.random_number',(err, number) => {
-           this.setState({number})
+            this.setState({number})
         });
-    };
+    }
 
     //Used to handle login button to redirect to login or posts page depending on user logined or not
-    loginHandle = ()=>{
+    loginHandle(){
         const {history} = this.props;
         if(Meteor.userId()){
             history.push("/posts/")
@@ -25,15 +30,15 @@ export default class Home extends React.Component {
         }
 
 
-    };
+    }
 
-    submit = (data) => {
-        Meteor.call('method.checkString', data.myValue, (err, result) => {
+    submit(data){
+        Meteor.call('method.checkString', data.myValue, (err) => {
             if(err) {
                 return alert(err.details);
             }
         });
-    };
+    }
 
     render() {
         const {number} = this.state;
@@ -48,14 +53,15 @@ export default class Home extends React.Component {
                     <button type='submit'> Check my string</button>
                 </AutoForm>
 
-                <div><br/><br /></div>
+                <div><br /><br /></div>
                 <div><button onClick={this.loginHandle}>Login</button></div>
-
-           </div>
+            </div>
         )
     }
 }
-
+Home.propTypes = {
+    history: PropTypes.object,
+}
 const schema = new SimpleSchema({
     myValue: String
 });
